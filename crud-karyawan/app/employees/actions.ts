@@ -29,6 +29,15 @@ export async function createEmployee(formData: FormData) {
     photoPath = `/uploads/${filename}`;
   }
 
+  // 2.5. Validasi email unik
+  const existingEmployee = await prisma.employee.findUnique({
+    where: { email },
+  });
+
+  if (existingEmployee) {
+    throw new Error('Email sudah terdaftar, silakan gunakan email lain.');
+  }
+
   // 3. Simpan ke database
   await prisma.employee.create({
     data: {

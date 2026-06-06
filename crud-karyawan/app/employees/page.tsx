@@ -1,39 +1,40 @@
 import { prisma } from '@/lib/prisma';
 import EmployeeForm from './EmployeeForm';
 import { deleteEmployee } from './actions';
+import DeleteButton from './DeleteButton';
 import Image from 'next/image';
 
 export default async function EmployeesPage() {
-  // Ambil semua data master untuk form
   const departments = await prisma.department.findMany();
-  const positions   = await prisma.position.findMany();
-  const skills      = await prisma.skill.findMany();
+  const positions = await prisma.position.findMany();
+  const skills = await prisma.skill.findMany();
 
-  // Ambil semua karyawan + relasi bertingkat
   const employees = await prisma.employee.findMany({
     include: {
-      skills: true,         // Many-to-Many: skill-skill karyawan
-      position: {           // One-to-Many: jabatan karyawan
+      skills: true,
+      position: {
         include: {
-          department: true, // One-to-Many: departemen dari jabatan
+          department: true,
         },
       },
     },
-    orderBy: { createdAt: 'desc' },
+    orderBy: {
+      createdAt: 'desc',
+    },
   });
 
   return (
     <main className="max-w-6xl mx-auto p-6 space-y-8">
-      <h1 className="text-2xl font-bold text-gray-900">Manajemen Karyawan</h1>
+      <h1 className="text-2xl font-bold text-blue-900">
+        Manajemen Karyawan
+      </h1>
 
-      {/* ── FORM ── */}
       <EmployeeForm
         departments={departments}
         positions={positions}
         skills={skills}
       />
 
-      {/* ── TABEL DATA ── */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="px-6 py-4 border-b">
           <h2 className="text-lg font-semibold text-gray-800">
@@ -54,17 +55,21 @@ export default async function EmployeesPage() {
                 <th className="px-4 py-3 text-left">Aksi</th>
               </tr>
             </thead>
+
             <tbody className="divide-y divide-gray-100">
               {employees.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="text-center py-12 text-gray-400">
+                  <td
+                    colSpan={7}
+                    className="text-center py-12 text-gray-400"
+                  >
                     Belum ada data. Tambahkan karyawan pertama!
                   </td>
                 </tr>
               )}
+
               {employees.map((emp) => (
                 <tr key={emp.id} className="hover:bg-gray-50">
-                  {/* Foto */}
                   <td className="px-4 py-3">
                     {emp.photoPath ? (
                       <Image
@@ -81,53 +86,67 @@ export default async function EmployeesPage() {
                     )}
                   </td>
 
-                  {/* Nama & Email */}
                   <td className="px-4 py-3">
-                    <p className="font-medium text-gray-900">{emp.name}</p>
-                    <p className="text-gray-400 text-xs">{emp.email}</p>
+                    <p className="font-medium text-gray-900">
+                      {emp.name}
+                    </p>
+                    <p className="text-gray-400 text-xs">
+                      {emp.email}
+                    </p>
                   </td>
 
-                  {/* Gender (dari Radio Button) */}
                   <td className="px-4 py-3 text-gray-600 capitalize">
-                    {emp.gender === 'male' ? '👨 Laki-laki' : '👩 Perempuan'}
+                    {emp.gender === 'male'
+                      ? '👨 Laki-laki'
+                      : '👩 Perempuan'}
                   </td>
 
-                  {/* Jabatan & Departemen (Cascading Dropdown) */}
                   <td className="px-4 py-3">
-                    <p className="font-medium text-gray-700">{emp.position.name}</p>
-                    <p className="text-gray-400 text-xs">{emp.position.department.name}</p>
+                    <p className="font-medium text-gray-700">
+                      {emp.position.name}
+                    </p>
+                    <p className="text-gray-400 text-xs">
+                      {emp.position.department.name}
+                    </p>
                   </td>
 
-                  {/* Skill (dari Checkbox / Many-to-Many) */}
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1">
                       {emp.skills.length === 0 && (
-                        <span className="text-gray-400 text-xs">-</span>
+                        <span className="text-gray-400 text-xs">
+                          -
+                        </span>
                       )}
-                      {emp.skills.map((s) => (
+
+                      {emp.skills.map((skill) => (
                         <span
-                          key={s.id}
+                          key={skill.id}
                           className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full"
                         >
-                          {s.name}
+                          {skill.name}
                         </span>
                       ))}
                     </div>
                   </td>
 
-                  {/* Status (dari Dropdown biasa) */}
                   <td className="px-4 py-3">
-                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                      emp.status === 'active'    ? 'bg-green-100 text-green-700'  :
-                      emp.status === 'probation' ? 'bg-yellow-100 text-yellow-700' :
-                                                   'bg-gray-100 text-gray-500'
-                    }`}>
-                      {emp.status === 'active'    ? 'Aktif'            :
-                       emp.status === 'probation' ? 'Masa Percobaan'   : 'Tidak Aktif'}
+                    <span
+                      className={`text-xs px-2 py-1 rounded-full font-medium ${
+                        emp.status === 'active'
+                          ? 'bg-green-100 text-green-700'
+                          : emp.status === 'probation'
+                          ? 'bg-yellow-100 text-yellow-700'
+                          : 'bg-gray-100 text-gray-500'
+                      }`}
+                    >
+                      {emp.status === 'active'
+                        ? 'Aktif'
+                        : emp.status === 'probation'
+                        ? 'Masa Percobaan'
+                        : 'Tidak Aktif'}
                     </span>
                   </td>
 
-                  {/* Aksi: Hapus */}
                   <td className="px-4 py-3">
                     <form
                       action={async () => {
@@ -135,15 +154,7 @@ export default async function EmployeesPage() {
                         await deleteEmployee(emp.id);
                       }}
                     >
-                      <button
-                        type="submit"
-                        onClick={(e) => {
-                          if (!confirm(`Hapus karyawan "${emp.name}"?`)) e.preventDefault();
-                        }}
-                        className="text-red-500 hover:text-red-700 text-sm font-medium"
-                      >
-                        Hapus
-                      </button>
+                      <DeleteButton />
                     </form>
                   </td>
                 </tr>
@@ -155,4 +166,3 @@ export default async function EmployeesPage() {
     </main>
   );
 }
-
