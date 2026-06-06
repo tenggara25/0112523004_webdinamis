@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Tabel 1: Departemen (induk dari Jabatan)
+model Department {
+  id        Int       @id @default(autoincrement())
+  name      String
+  positions Position[]
+}
+
+// Tabel 2: Jabatan (anak dari Departemen)
+// Digunakan untuk Cascading Dropdown
+model Position {
+  id           Int        @id @default(autoincrement())
+  name         String
+  departmentId Int
+  department   Department @relation(fields: [departmentId], references: [id])
+  employees    Employee[]
+}
+
+// Tabel 3: Skill (untuk Many-to-Many dengan Employee)
+model Skill {
+  id        Int        @id @default(autoincrement())
+  name      String
+  employees Employee[]
+}
+
+// Tabel 4: Employee (tabel utama)
+model Employee {
+  id         Int      @id @default(autoincrement())
+  name       String
+  email      String   @unique
+  gender     String   // Dari Radio Button: "male" | "female"
+  status     String   // Dari Dropdown: "active" | "inactive" | "probation"
+  photoPath  String?  // Dari File Input
+
+  // Relasi ke Position (Cascading Dropdown)
+  positionId Int
+  position   Position @relation(fields: [positionId], references: [id])
+
+  // Relasi Many-to-Many ke Skill (Checkbox)
+  skills     Skill[]
+
+  createdAt  DateTime @default(now())
+}
+
