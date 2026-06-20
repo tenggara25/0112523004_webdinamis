@@ -17,6 +17,19 @@ export type MahasiswaInput = {
   angkatan: number;
 };
 
+export type Produk = {
+  id: number;
+  nama: string;
+  harga: number;
+  stok: number;
+};
+
+export type ProdukInput = {
+  nama: string;
+  harga: number;
+  stok: number;
+};
+
 type ApiResponse<T> = {
   message: string;
   data?: T;
@@ -78,3 +91,65 @@ export async function deleteMahasiswa(id: number): Promise<void> {
 
   await handleResponse(response);
 }
+
+// =====================
+// PRODUK
+// =====================
+
+export async function getProduk(): Promise<Produk[]> {
+  const response = await fetch(`${API_URL}/produk`, {
+    cache: "no-store",
+  });
+
+  const result = await handleResponse<Produk[]>(response);
+
+  return result.data || [];
+}
+
+export async function createProduk(
+  payload: ProdukInput
+): Promise<Produk> {
+  const response = await fetch(`${API_URL}/produk`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const result = await handleResponse<Produk>(response);
+
+  return result.data as Produk;
+}
+
+export async function updateProduk(
+  id: number,
+  payload: ProdukInput
+): Promise<void> {
+  const response = await fetch(
+    `${API_URL}/produk/${id}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    }
+  );
+
+  await handleResponse(response);
+}
+
+export async function deleteProduk(
+  id: number
+): Promise<void> {
+  const response = await fetch(
+    `${API_URL}/produk/${id}`,
+    {
+      method: "DELETE",
+    }
+  );
+
+  await handleResponse(response);
+}
+

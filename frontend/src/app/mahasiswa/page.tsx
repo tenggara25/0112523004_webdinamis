@@ -20,6 +20,8 @@ export default function MahasiswaPage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
+  const [search, setSearch] = useState("");
+
   const loadMahasiswa = async () => {
     try {
       setLoading(true);
@@ -72,6 +74,10 @@ export default function MahasiswaPage() {
     }
   };
 
+  const filteredMahasiswa = mahasiswa.filter((item) =>
+    item.nama.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <main className="container">
       <div className="header">
@@ -96,11 +102,25 @@ export default function MahasiswaPage() {
 
       <section className="card" style={{ marginTop: 20 }}>
         <h2>Daftar Mahasiswa</h2>
+
+      <div className="form-group">
+    <label>Cari Mahasiswa</label>
+
+    <input
+      type="text"
+      placeholder="Masukkan nama mahasiswa..."
+      value={search}
+      onChange={(e) =>
+        setSearch(e.target.value)
+      }
+    />
+  </div>
+
         {loading ? (
           <p>Memuat data...</p>
         ) : (
           <MahasiswaTable
-            mahasiswa={mahasiswa}
+            mahasiswa={filteredMahasiswa}
             onEdit={setSelectedMahasiswa}
             onDelete={handleDelete}
           />
