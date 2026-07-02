@@ -1,0 +1,12 @@
+{
+  "name": "tugasmingguan-pertemuan12",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix backend run dev",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend-next-express-crud run dev",
+    "install:backend": "npm --prefix backend install",
+    "install:frontend": "npm --prefix frontend-next-express-crud install",
+    "install:all": "npm run install:backend && npm run install:frontend"
+  }
+}
